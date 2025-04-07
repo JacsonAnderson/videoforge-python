@@ -1,10 +1,9 @@
 # gui/sidebar.py
-
 import customtkinter as ctk
 from style import DARK_MODE_PALETTE
 
 class SidebarModal(ctk.CTkFrame):
-    def __init__(self, master, on_close_callback=None):
+    def __init__(self, master, on_close_callback=None, on_menu_select=None):
         super().__init__(
             master,
             fg_color=DARK_MODE_PALETTE["sidebar_bg"],
@@ -13,15 +12,15 @@ class SidebarModal(ctk.CTkFrame):
             border_color=DARK_MODE_PALETTE["border"]
         )
         self.on_close_callback = on_close_callback
-        
-        # Configura o grid da sidebar: 4 linhas (close, perfil, menu, footer)
+        self.on_menu_select = on_menu_select
+
         self.grid_rowconfigure(0, weight=0)
         self.grid_rowconfigure(1, weight=0)
         self.grid_rowconfigure(2, weight=1)
         self.grid_rowconfigure(3, weight=0)
         self.grid_columnconfigure(0, weight=1)
-        
-        # Botão de fechar: posicionado no canto superior direito via place
+
+        # Botão de fechar
         self.close_button = ctk.CTkButton(
             self,
             text="X",
@@ -33,10 +32,10 @@ class SidebarModal(ctk.CTkFrame):
             command=self.close
         )
         self.close_button.place(relx=1.0, x=-10, y=10, anchor="ne")
-        
+
         # --- Perfil ---
         self.profile_frame = ctk.CTkFrame(self, fg_color=DARK_MODE_PALETTE["sidebar_bg"])
-        self.profile_frame.grid(row=1, column=0, sticky="ew", padx=20, pady=(50, 20))
+        self.profile_frame.grid(row=1, column=0, sticky="ew", padx=20, pady=(50,20))
         self.profile_frame.grid_columnconfigure(0, weight=1)
         
         self.profile_pic = ctk.CTkLabel(
@@ -65,13 +64,16 @@ class SidebarModal(ctk.CTkFrame):
         menu_items = [
             "Dashboard",
             "Painel de Conteúdo",
-            "Gerar Roteiro",
-            "Gerar Áudio",
-            "Editar Vídeo",
+            "AutoForge",
             "Configurações",
             "Ajuda"
         ]
-        for item in menu_items:
+        
+        for i, item in enumerate(menu_items):
+            # Se a callback foi definida, o comando do botão chama on_menu_select passando o item
+            cmd = None
+            if self.on_menu_select:
+                cmd = lambda item=item: self.on_menu_select(item)
             btn = ctk.CTkButton(
                 self.menu_frame,
                 text=item,
@@ -79,9 +81,10 @@ class SidebarModal(ctk.CTkFrame):
                 hover_color=DARK_MODE_PALETTE["hover"],
                 height=50,
                 corner_radius=8,
-                font=("Arial", 14)
+                font=("Arial", 14),
+                command=cmd
             )
-            btn.grid(row=menu_items.index(item), column=0, sticky="ew", pady=5, padx=5)
+            btn.grid(row=i, column=0, sticky="ew", pady=5, padx=5)
         
         # --- Footer Interno ---
         self.footer_frame = ctk.CTkFrame(self, fg_color=DARK_MODE_PALETTE["sidebar_bg"])
