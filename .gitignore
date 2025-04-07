@@ -1,6 +1,6 @@
 # Ambiente virtual
 venv/
-
+.venv/
 # Arquivos temporários
 *.pyc
 __pycache__/
